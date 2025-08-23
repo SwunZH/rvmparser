@@ -56,7 +56,9 @@ processFile(const std::string& path, F f)
 {
   bool rv = false;
 #ifdef _WIN32
-
+  char buf[MAX_PATH];
+  GetCurrentDirectoryA(MAX_PATH, buf);
+  logger(0, "Current directory: %s", buf);
   HANDLE h = CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if (h == INVALID_HANDLE_VALUE) {
     logger(2, "CreateFileA returned INVALID_HANDLE_VALUE");

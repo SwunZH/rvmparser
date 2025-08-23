@@ -73,6 +73,24 @@ namespace {
 
   const char* parse_chunk_header(char* id, uint32_t& next_chunk_offset, uint32_t& dunno, const char* curr_ptr, const char* end_ptr)
   {
+      if (curr_ptr >= end_ptr) 
+      {
+          id[0] = id[1] = id[2] = id[3] = ' ';
+          id[4] = 0;
+          next_chunk_offset = ~0u;
+          dunno = ~0u;
+          return curr_ptr;
+      }
+
+      if (curr_ptr[0] != 0 || curr_ptr[1] != 0 || curr_ptr[2] != 0) 
+      {
+          id[0] = id[1] = id[2] = id[3] = ' ';
+          id[4] = 0;
+          next_chunk_offset = ~0u;
+          dunno = ~0u;
+          return curr_ptr;
+      }
+
     unsigned i = 0;
     for (i = 0; i < 4 && curr_ptr + 4 <= end_ptr; i++) {
       assert(curr_ptr[0] == 0);
