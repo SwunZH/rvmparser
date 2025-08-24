@@ -138,9 +138,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>FOONDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FOONDEBUG;_CONSOLE;_AMD64_;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\libs\libtess2\include;$(ProjectDir)..\libs\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\libs\libtess2\include;$(ProjectDir)..\libs\rapidjson\include;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2910\Dev_Tools\hoops_3dgs\source;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2910\Dev_Tools\hoops_mvo\source;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2910\Dev_Tools\base_stream\source\stream_common;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2910\Dev_Tools\base_stream\source;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2910\Dev_Tools\hoops_stream\source;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2910\Dev_Tools\utility\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -148,6 +148,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\Hoops\HOOPS_3DF_2930\Dev_Tools\hoops_3dgs\lib\nt_x64_v142;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2930\Dev_Tools\hoops_mvo\lib\nt_x64_v142;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2930\Dev_Tools\hoops_stream\lib\nt_x64_v142;$(ProjectDir)..\..\Hoops\HOOPS_3DF_2930\Dev_Tools\utility\lib\nt_x64_v142;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hoops.lib;hoops_stream.lib;hoops_mvo_mgk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -168,6 +171,7 @@
     <ClCompile Include="..\src\DiscardGroups.cpp" />
     <ClCompile Include="..\src\DumpNames.cpp" />
     <ClCompile Include="..\src\ExportGLTF.cpp" />
+    <ClCompile Include="..\src\ExportHsf.cpp" />
     <ClCompile Include="..\src\ExportJson.cpp" />
     <ClCompile Include="..\src\ExportObj.cpp" />
     <ClCompile Include="..\src\ExportRev.cpp" />
@@ -233,6 +237,7 @@
     <ClInclude Include="..\src\Colorizer.h" />
     <ClInclude Include="..\src\Common.h" />
     <ClInclude Include="..\src\DumpNames.h" />
+    <ClInclude Include="..\src\ExportHsf.h" />
     <ClInclude Include="..\src\ExportObj.h" />
     <ClInclude Include="..\src\Flatten.h" />
     <ClInclude Include="..\src\LinAlg.h" />

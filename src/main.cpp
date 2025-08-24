@@ -36,6 +36,8 @@
 
 #include "parserREV.h"
 
+#include "ExportHsf.h"
+
 
 void logger(unsigned level, const char* msg, ...)
 {
@@ -184,6 +186,7 @@ Options:
                                       is 0.1.
   --cull-scale=value                  Cull objects smaller than cull-scale times tolerance. Set to
                                       a negative value to disable culling. Disabled by default.
+  --output-hsf=filename.hsf		      Write geometry into a hsf file. The suffix .hsf is added to the filename.
 
 Post bug reports or questions at https://github.com/cdyk/rvmparser
 )help", argv0);
@@ -236,6 +239,7 @@ int main(int argc, char** argv)
   size_t output_gltf_split_level = 0;
 
   std::string output_rev;
+  std::string output_hsf;
   std::string output_obj_stem;
   std::string color_attribute;
   
@@ -330,6 +334,12 @@ int main(int argc, char** argv)
         else if (key == "--chunk-tiny") {
           chunkTinyVertexThreshold = std::stoul(val);
           should_tessellate = true;
+          continue;
+        }
+        else if (key == "--output-hsf") {
+          output_hsf = val;
+          should_tessellate = true;
+          should_colorize = true;
           continue;
         }
       }
@@ -557,6 +567,27 @@ int main(int argc, char** argv)
       logger(2, "Failed to export gltf into %s", output_gltf.c_str());
       rv = -1;
     }
+  }
+
+  if (rv == 0 && !output_hsf.empty()) {
+      assert(should_tessellate);
+
+      auto time0 = std::chrono::high_resolution_clock::now();
+	   ExportHsf exportHsf(output_hsf.c_str());
+	   exportHsf.groupBoundingBoxes = groupBoundingBoxes;
+       store->apply(&exportHsf);
+
+	   /*if (exportHsf.open((output_obj_stem + ".obj").c_str(), (output_obj_stem + ".mtl").c_str())) {
+		   store->apply(&exportHsf);
+
+		   auto time1 = std::chrono::high_resolution_clock::now();
+		   auto e = std::chrono::duration_cast<std::chrono::milliseconds>((time1 - time0)).count();
+		   logger(0, "Exported obj into %s(.obj|.mtl) (%lldms)", output_obj_stem.c_str(), e);
+	   }
+	   else {
+		   logger(2, "Failed to export obj file.\n");
+		   rv = -1;
+	   }*/
   }
 
   AddStats addStats;

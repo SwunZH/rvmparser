@@ -199,6 +199,9 @@
     <ClInclude Include="..\src\parserREV.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ExportHsf.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">
@@ -289,6 +292,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\parserREV.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ExportHsf.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
