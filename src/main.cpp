@@ -34,6 +34,8 @@
 #include "AddGroupBBox.h"
 #include "Colorizer.h"
 
+#include "parserREV.h"
+
 
 void logger(unsigned level, const char* msg, ...)
 {
@@ -355,7 +357,7 @@ int main(int argc, char** argv)
     }
 
     // parse attributes file
-    if (arg_lc.rfind(".txt") != std::string::npos || arg_lc.rfind(".att")) {
+    if (arg_lc.rfind(".txt") != std::string::npos || arg_lc.rfind(".att") != std::string::npos) {
       if (processFile(arg, [store](const void* ptr, size_t size) { return parseAtt(store, logger, ptr, size); })) {
         fprintf(stderr, "Successfully parsed %s\n", arg.c_str());
       }
@@ -365,6 +367,20 @@ int main(int argc, char** argv)
         break;
       }
       continue;
+    }
+
+    // parse rev file
+    if (arg_lc.rfind(".rev") != std::string::npos) {
+        if (processFile(arg, [store, arg](const void* ptr, size_t size) { return parseREV(store, logger, arg.c_str(), ptr, size); }))
+        {
+            fprintf(stderr, "Successfully parsed %s\n", arg.c_str());
+        }
+        else {
+            fprintf(stderr, "Failed to parse %s: %s\n", arg.c_str(), store->errorString());
+            rv = -1;
+            break;
+        }
+        continue;
     }
   }
 

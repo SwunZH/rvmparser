@@ -196,6 +196,9 @@
     <ClInclude Include="..\libs\rapidjson\include\rapidjson\msinttypes\stdint.h">
       <Filter>rapidjson\msinttypes</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\parserREV.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">
@@ -283,6 +286,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\FlattenRegex.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\parserREV.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
