@@ -1,4 +1,4 @@
-#ifdef _WIN32
+﻿#ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -38,6 +38,8 @@
 
 #include "ExportHsf.h"
 
+#define ERROR_GENERIC -1
+#define ERROR_RVM_PARSE_FAIL -2
 
 void logger(unsigned level, const char* msg, ...)
 {
@@ -352,42 +354,52 @@ int main(int argc, char** argv)
     auto arg_lc = arg;
     for (auto & c : arg_lc) c = static_cast<char>(std::tolower(c));
 
+    // 确保只检查文件的后缀
+    std::filesystem::path filePath(arg); // 将路径转换为 std::filesystem::path
+    std::string extension = filePath.extension().string(); // 获取文件后缀（包括点号）
+
+    // 转换后缀为小写以便比较
+    std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+        });
+
+
     // parse rvm file
-    if (arg_lc.rfind(".rvm") != std::string::npos) {
+    if (extension == ".rvm") {
       if (processFile(arg, [store, arg](const void * ptr, size_t size) { return parseRVM(store, logger, arg.c_str(), ptr, size); }))
       {
         fprintf(stderr, "Successfully parsed %s\n", arg.c_str());
       }
       else {
         fprintf(stderr, "Failed to parse %s: %s\n", arg.c_str(), store->errorString());
-        rv = -1;
+        rv = ERROR_RVM_PARSE_FAIL;
         break;
       }
       continue;
     }
 
     // parse attributes file
-    if (arg_lc.rfind(".txt") != std::string::npos || arg_lc.rfind(".att") != std::string::npos) {
+    if (extension == ".txt" || extension == ".att") {
       if (processFile(arg, [store](const void* ptr, size_t size) { return parseAtt(store, logger, ptr, size); })) {
         fprintf(stderr, "Successfully parsed %s\n", arg.c_str());
       }
       else {
         fprintf(stderr, "Failed to parse %s\n", arg.c_str());
-        rv = -1;
+        rv = ERROR_GENERIC;
         break;
       }
       continue;
     }
 
     // parse rev file
-    if (arg_lc.rfind(".rev") != std::string::npos) {
+    if (extension == ".rev") {
         if (processFile(arg, [store, arg](const void* ptr, size_t size) { return parseREV(store, logger, arg.c_str(), ptr, size); }))
         {
             fprintf(stderr, "Successfully parsed %s\n", arg.c_str());
         }
         else {
             fprintf(stderr, "Failed to parse %s: %s\n", arg.c_str(), store->errorString());
-            rv = -1;
+            rv = ERROR_GENERIC;
             break;
         }
         continue;
@@ -405,7 +417,7 @@ int main(int argc, char** argv)
     }
     else {
       logger(2, "Failed to parse %s", discard_groups.c_str());
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   } 
 
@@ -423,7 +435,7 @@ int main(int argc, char** argv)
     }
     else {
       logger(2, "Failed to flatten hierarchy using regex '%s'", keep_regex.c_str());
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   }
 
@@ -467,7 +479,7 @@ int main(int argc, char** argv)
     }
     else {
       fprintf(stderr, "Failed to parse %s\n", keep_groups.c_str());
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   }
 
@@ -493,7 +505,7 @@ int main(int argc, char** argv)
     }
     else {
       logger(2, "Failed to export obj file.\n");
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   }
 
@@ -514,7 +526,7 @@ int main(int argc, char** argv)
     }
     else {
       logger(2, "Failed to open %s for writing", output_txt.c_str());
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   }
 
@@ -526,7 +538,7 @@ int main(int argc, char** argv)
     }
     else {
       logger(2, "Failed to export rev file %s", output_rev.c_str());
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   }
 
@@ -545,7 +557,7 @@ int main(int argc, char** argv)
     }
     else {
       logger(2, "Failed to export obj file.\n");
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   }
 
@@ -565,7 +577,7 @@ int main(int argc, char** argv)
     }
     else {
       logger(2, "Failed to export gltf into %s", output_gltf.c_str());
-      rv = -1;
+      rv = ERROR_GENERIC;
     }
   }
 
@@ -586,7 +598,7 @@ int main(int argc, char** argv)
 	   }
 	   else {
 		   logger(2, "Failed to export obj file.\n");
-		   rv = -1;
+		   rv = ERROR_GENERIC;
 	   }*/
   }
 

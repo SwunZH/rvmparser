@@ -38,6 +38,7 @@ public:
     HC_KEY m_modelKey = 0;
 
 private:
+    HBaseModel* m_baseModel;
     std::filesystem::path m_savePath;
     Map m_definedColors;
     std::stack<HC_KEY> m_keyList;
@@ -52,6 +53,9 @@ private:
     bool anchors = false;
     bool primitiveBoundingBoxes = false;
     bool compositeBoundingBoxes = false;
+
+    int m_model_idx = 0;
+    int m_group_idx = 0;
 
 };
 

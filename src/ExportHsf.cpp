@@ -8,10 +8,10 @@
 
 ExportHsf::ExportHsf(const char* path) : m_modelKey(INVALID_KEY), m_savePath(path)
 {
-	HBaseModel* baseModel = new HBaseModel();
-	HC_Open_Segment_By_Key(baseModel->GetModelKey());
+	m_baseModel = new HBaseModel();
+	HC_Open_Segment_By_Key(m_baseModel->GetModelKey());
 	{
-		m_modelKey = HC_Open_Segment("");
+        m_modelKey = HC_Open_Segment("model");
 		{
 			HC_Set_Heuristics("static model=on");
 			HC_Set_Visibility("geometry=on");
@@ -24,19 +24,23 @@ ExportHsf::~ExportHsf()
 void ExportHsf::beginFile(Node* group)
 {
 	HC_Open_Segment_By_Key(m_modelKey);
-
-
 }
 
 void ExportHsf::endFile()
 {
-    HTK_Write_Stream_File(m_savePath.c_str(), TK_Full_Resolution);
 	HC_Close_Segment();
+
+    HC_Open_Segment_By_Key(m_baseModel->GetModelKey());
+    HTK_Write_Stream_File(m_savePath.c_str(), TK_Full_Resolution);
+    HC_Close_Segment();
 }
 
 void ExportHsf::beginModel(Node* group)
 {
-	HC_Open_Segment("");
+    /*char seg_name[1024];
+    sprintf(seg_name, "model_%d", m_model_idx++);
+    HC_Open_Segment("");*/
+
 	std::string pjtName = "project=" + std::string(group->model.project);
 	std::string modelName = "name=" + std::string(group->model.name);
 
@@ -46,11 +50,13 @@ void ExportHsf::beginModel(Node* group)
 
 void ExportHsf::endModel()
 {
-	HC_Close_Segment();
+	// HC_Close_Segment();
 }
 
 void ExportHsf::beginGroup(Node* group)
 {
+    char seg_name[1024];
+    sprintf(seg_name, "model_%d", m_group_idx++);
 	HC_Open_Segment("");
 
 }
@@ -86,8 +92,12 @@ void ExportHsf::beginAttributes(Node* container)
 
 void ExportHsf::geometry(Geometry* geometry)
 {
-    float scale = 1.f;
+    char seg_name[1024];
+    sprintf(seg_name, "%d_%d", m_group_idx, m_model_idx++);
+    HC_Open_Segment(seg_name);
 
+    float scale = 1.f;
+    
     // color
     uint32_t colorId = (geometry->color << 8) | geometry->transparency;
     if (!m_definedColors.get((uint64_t(colorId) << 1) | 1)) {
@@ -105,6 +115,8 @@ void ExportHsf::geometry(Geometry* geometry)
 
         HC_Set_Color(chTransmission);
     }
+    else 
+        HC_Set_Color("geometry=R=0 G=1 B=0");
 
     switch (geometry->kind)
     {
@@ -223,5 +235,6 @@ void ExportHsf::geometry(Geometry* geometry)
 
     
 
+    HC_Close_Segment();
 
 }
