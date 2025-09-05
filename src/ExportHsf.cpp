@@ -11,7 +11,7 @@ ExportHsf::ExportHsf(const char* path) : m_modelKey(INVALID_KEY), m_savePath(pat
 	m_baseModel = new HBaseModel();
 	HC_Open_Segment_By_Key(m_baseModel->GetModelKey());
 	{
-        m_modelKey = HC_Open_Segment("model");
+        m_modelKey = HC_Open_Segment("designmodel");
 		{
 			HC_Set_Heuristics("static model=on");
 			HC_Set_Visibility("geometry=on");
@@ -24,6 +24,8 @@ ExportHsf::~ExportHsf()
 void ExportHsf::beginFile(Node* group)
 {
 	HC_Open_Segment_By_Key(m_modelKey);
+    std::string str = "seg_type=dsn_model, BEGIN_FILE=" + m_savePath.filename().stem().string();
+    HC_Set_User_Options(str.c_str());
 }
 
 void ExportHsf::endFile()
@@ -37,33 +39,27 @@ void ExportHsf::endFile()
 
 void ExportHsf::beginModel(Node* group)
 {
-    /*char seg_name[1024];
-    sprintf(seg_name, "model_%d", m_model_idx++);
-    HC_Open_Segment("");*/
+    HC_Open_Segment("");
+	std::string pjtName = "PROJECT=" + std::string(group->model.project);
+	std::string modelName = "MODEL_NAME=" + std::string(group->model.name) + ", " + pjtName;
 
-	std::string pjtName = "project=" + std::string(group->model.project);
-	std::string modelName = "name=" + std::string(group->model.name);
-
-	HC_Set_User_Options(pjtName.c_str());
 	HC_Set_User_Options(modelName.c_str());
 }
 
 void ExportHsf::endModel()
 {
-	// HC_Close_Segment();
+	HC_Close_Segment();
 }
 
 void ExportHsf::beginGroup(Node* group)
 {
-    char seg_name[1024];
-    sprintf(seg_name, "model_%d", m_group_idx++);
-	HC_Open_Segment("");
-
+	/*HC_Open_Segment("");
+    HC_Set_User_Options("GROUP");*/
 }
 
 void ExportHsf::EndGroup()
 {
-	HC_Close_Segment();
+	// HC_Close_Segment();
 }
 
 void ExportHsf::attribute(const char* key, const char* val)
@@ -88,19 +84,43 @@ void ExportHsf::beginAttributes(Node* container)
 	//	HC_Set_User_Options(setString.c_str());
 	//	beginRef = beginRef->next;
 	//}
+    HC_Open_Segment("");
+    std::string str = "ATTRIBUTE=" + std::string(container->model.name);
+    HC_Set_User_Options(str.c_str());
+
+}
+
+void ExportHsf::endAttributes(Node* container)
+{
+    HC_Close_Segment();
+}
+
+void ExportHsf::beginGeometries(Node* container)
+{
+    HC_Open_Segment("");
+    std::string str = "model_name=" + std::string(container->group.name);
+    HC_Set_User_Options(str.c_str());
+
+    if (std::string(container->group.name) == "stiffener 6 of /D09-FR159")
+        m_debugSign = true;
 }
 
 void ExportHsf::geometry(Geometry* geometry)
-{
-    char seg_name[1024];
-    sprintf(seg_name, "%d_%d", m_group_idx, m_model_idx++);
-    HC_Open_Segment(seg_name);
+{    
+    if (m_debugSign)
+        m_debugSign = false;
 
     float scale = 1.f;
     
     // color
     uint32_t colorId = (geometry->color << 8) | geometry->transparency;
-    if (!m_definedColors.get((uint64_t(colorId) << 1) | 1)) {
+
+    double r = (1.0 / 255.0) * ((geometry->color >> 16) & 0xFF);
+    double g = (1.0 / 255.0) * ((geometry->color >> 8) & 0xFF);
+    double b = (1.0 / 255.0) * ((geometry->color) & 0xFF);
+    std::string str = "geometry=R=" + std::to_string(r) + " G=" + std::to_string(g) + " B=" + std::to_string(b);
+    HC_Set_Color(str.c_str());
+    /*if (!m_definedColors.get((uint64_t(colorId) << 1) | 1)) {
         m_definedColors.insert(((uint64_t(colorId) << 1) | 1), 1);
 
         double r = (1.0 / 255.0) * ((geometry->color >> 16) & 0xFF);
@@ -115,8 +135,10 @@ void ExportHsf::geometry(Geometry* geometry)
 
         HC_Set_Color(chTransmission);
     }
-    else 
+    else
+    {
         HC_Set_Color("geometry=R=0 G=1 B=0");
+    }*/
 
     switch (geometry->kind)
     {
@@ -233,8 +255,26 @@ void ExportHsf::geometry(Geometry* geometry)
 
     }
 
-    
+}
 
+void ExportHsf::endGeometries()
+{
     HC_Close_Segment();
+}
 
+void ExportHsf::beginChildren(Node* container)
+{
+    HC_Open_Segment("");
+    std::string str = std::string(container->group.name);
+    str.erase(std::remove(str.begin(), str.end(), '`'), str.end());
+    str.erase(std::remove(str.begin(), str.end(), '/'), str.end());
+
+    if (str != "ROOT" && str != "BLOCK")
+        str = "BLOCK_NAME=" + str;
+    HC_Set_User_Options(str.c_str());
+}
+
+void ExportHsf::endChildren()
+{
+    HC_Close_Segment();
 }

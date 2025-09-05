@@ -30,8 +30,14 @@ public:
 
     void attribute(const char* key, const char* val) override;
     void beginAttributes(struct Node* container) override;
+    void endAttributes(struct Node* container) override;
 
+    void beginGeometries(struct Node* container) override;
     void geometry(struct Geometry* geometry) override;
+    void endGeometries() override;
+
+    void beginChildren(struct Node* container) override;
+    void endChildren() override;
 
 public:
     bool groupBoundingBoxes = false;
@@ -56,6 +62,8 @@ private:
 
     int m_model_idx = 0;
     int m_group_idx = 0;
+
+    bool m_debugSign = false;
 
 };
 
